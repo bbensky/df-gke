@@ -1,6 +1,6 @@
 {{- if .Values.hpa.enabled }}
 {{- $fullName := include "df-chart.fullname" . -}}
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ $fullName }}
