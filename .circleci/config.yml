@@ -24,8 +24,8 @@ references:
     run:
       name: Deploy to Production
       command: |
-        prepare-gcloud
         prepare-kubectl  
+        prepare-gcloud
         helm-deploy -f deploy/production.config
 
 jobs:
