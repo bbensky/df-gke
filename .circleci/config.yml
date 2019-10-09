@@ -32,6 +32,7 @@ references:
     run:
       name: Deploy to Ephemeral Environment
       command: |
+        echo 'export NAMESPACE=$(echo $CIRCLE_BRANCH | cut -c 1-63 | sed "s/[^a-zA-Z0-9-]/-/g")' >> ${BASH_ENV}
         deploy/create-ephemeral-values.sh $NAMESPACE
         prepare-kubectl
         prepare-gcloud
@@ -64,7 +65,6 @@ jobs:
       - checkout
       - setup_remote_docker
       - *set_environment_variables
-      - run: echo 'export NAMESPACE=$(echo $CIRCLE_BRANCH | cut -c 1-63 | sed "s/[^a-zA-Z0-9-]/-/g")' >> ${BASH_ENV}
       - *ephemeral_deploy
     environment:
       ROK8S_CONFIG: deploy/ephemeral.config
