@@ -28,6 +28,19 @@ references:
         prepare-gcloud
         helm-deploy -f deploy/production.config
 
+  ephemeral_deploy: &ephemeral_deploy
+    run:
+      name: Deploy to Ephemeral Environment
+      command: |
+        echo 'export NAMESPACE=$(echo $CIRCLE_BRANCH | cut -c 1-63 | sed "s/[^a-zA-Z0-9-]/-/g")' >> ${BASH_ENV}
+        prepare-kubectl
+        prepare-gcloud
+        deploy/create-ephemeral-values.sh $NAMESPACE
+        (kubectl get ns $NAMESPACE || kubectl create ns $NAMESPACE) && kubectl label namespace $NAMESPACE environment=ephemeral --overwrite=true
+        helm-deploy -f ${ROK8S_CONFIG}
+        k8s-verify-deployment -f ${ROK8S_CONFIG}
+        echo \"Ephemeral URL: https://${NAMESPACE}.bb-gke.hillghost.com\"
+
 jobs:
   build_image:
     docker:
@@ -45,6 +58,17 @@ jobs:
       - setup_remote_docker
       - *set_environment_variables
       - *deploy_to_kube
+  ephemeral_deploy:
+    docker:
+      - image: quay.io/reactiveops/ci-images:v9.3-stretch
+    steps:
+      - checkout
+      - setup_remote_docker
+      - *set_environment_variables
+      - *ephemeral_deploy
+    environment:
+      ROK8S_CONFIG: deploy/ephemeral.config
+
 
 workflows:
   version: 2
@@ -57,3 +81,10 @@ workflows:
           filters:
             branches:
               only: master
+      - ephemeral_deploy:
+          requires:
+            - build_image
+          filters:
+            branches:
+              only:
+                - /feature-.*/
