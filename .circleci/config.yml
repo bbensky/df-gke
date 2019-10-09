@@ -33,9 +33,9 @@ references:
       name: Deploy to Ephemeral Environment
       command: |
         echo 'export NAMESPACE=$(echo $CIRCLE_BRANCH | cut -c 1-63 | sed "s/[^a-zA-Z0-9-]/-/g")' >> ${BASH_ENV}
+        deploy/create-ephemeral-values.sh $NAMESPACE
         prepare-kubectl
         prepare-gcloud
-        deploy/create-ephemeral-values.sh $NAMESPACE
         (kubectl get ns $NAMESPACE || kubectl create ns $NAMESPACE) && kubectl label namespace $NAMESPACE environment=ephemeral --overwrite=true
         helm-deploy -f ${ROK8S_CONFIG}
         k8s-verify-deployment -f ${ROK8S_CONFIG}
