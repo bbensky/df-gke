@@ -1,4 +1,4 @@
-const numItemsToGenerate = 20; //how many gallery items you want on the screen
+const numItemsToGenerate = 30; //how many gallery items you want on the screen
 const numImagesAvailable = 242; //how many total images are in the collection you are pulling from
 const imageWidth = 480; //your desired image width in pixels
 const imageHeight = 480; //desired image height in pixels
